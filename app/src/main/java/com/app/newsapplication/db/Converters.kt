@@ -1,7 +1,6 @@
 package com.app.newsapplication.db
 
 import androidx.room.TypeConverter
-import com.app.newsapplication.model.Author
 import com.app.newsapplication.model.Images
 import com.app.newsapplication.model.TypeAttributes
 import com.google.gson.Gson
@@ -15,24 +14,19 @@ class Converters {
     }
 
     @TypeConverter
-    fun urlToImages(url:String) : Images {
+    fun urlToImages(url: String): Images {
         return Images(url)
     }
 
-//    @TypeConverter
-//    fun TypeAttributesToName(typeAttributes: TypeAttributes) :String{
-//        return typeAttributes.author.name
-//    }
-
     @TypeConverter
-    fun TypeAttributesToGSON(typeAttributes: TypeAttributes) :String{
-        val gson=Gson()
-        return gson.toJson(typeAttributes)
+    fun toTypeAttributes(userInfo: String): TypeAttributes {
+        val type = object : TypeToken<TypeAttributes>() {}.type
+        return Gson().fromJson(userInfo, type)
     }
 
     @TypeConverter
-    fun GsonTOTypeAttributes(str: String) :TypeAttributes{
-        val listType = object : TypeToken<TypeAttributes>() {}.type
-        return Gson().fromJson(str, listType)
+    fun toTypeAttributesJson(typeAttributes: TypeAttributes): String {
+        val type = object : TypeToken<TypeAttributes>() {}.type
+        return Gson().toJson(typeAttributes, type)
     }
 }

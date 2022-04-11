@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="dim_10dp">10dp</dimen>
+    <dimen name="dim_8dp">8dp</dimen>
+    <dimen name="img_height_150dp">150dp</dimen>
+    <dimen name="dim_50dp">50dp</dimen>
+    <dimen name="cardview_corner_radius">4dp</dimen>
+    <dimen name="dim_56dp">56dp</dimen>
+    <dimen name="dim_4dp">4dp</dimen>
+</resources>

@@ -7,8 +7,8 @@ import android.os.Build
 
 class Utils {
     //Check For Internet Connection
-    fun hasInternetConnection(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(
+    fun hasInternetConnection(context: Context?): Boolean {
+        val connectivityManager = context?.getSystemService(
             Context.CONNECTIVITY_SERVICE
         ) as ConnectivityManager
 

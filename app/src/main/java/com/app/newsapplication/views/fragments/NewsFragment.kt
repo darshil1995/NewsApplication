@@ -17,6 +17,7 @@ import com.app.newsapplication.adapter.NewsResponseTypeAdapter
 import com.app.newsapplication.util.Constants.Companion.PAGE_SIZE
 import com.app.newsapplication.util.Constants.Companion.TOTAL_RESULTS
 import com.app.newsapplication.util.Resource
+import com.app.newsapplication.util.Utils
 import com.app.newsapplication.views.MainActivity
 import com.app.newsapplication.views.NewsViewModel
 import kotlinx.android.synthetic.main.fragment_news.*
@@ -51,7 +52,7 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
                 newsResponseItem.type.equals(item?.type)
             }
             newsResponseAdapter.differ.submitList(list)
-            (activity as MainActivity).title=item?.type?.uppercase()
+            (activity as MainActivity).title = item?.type?.uppercase()
         }
 
         viewModel.news.observe(viewLifecycleOwner, Observer { response ->
@@ -81,6 +82,9 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
                     hideProgressBar()
                     response.message?.let { message ->
                         Log.e(TAG, "Error:  $message")
+                        if (Utils().hasInternetConnection(context)) {
+                            btnAllNews.visibility = View.GONE
+                        }
                         Toast.makeText(activity, "An Error Occured: $message", Toast.LENGTH_SHORT)
                             .show()
                     }
@@ -158,7 +162,7 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
         btnAllNews.apply {
             setOnClickListener {
                 isFilter = false
-                (activity as MainActivity).title="ALL NEWS"
+                (activity as MainActivity).title = "ALL NEWS"
                 viewModel.getNews(viewModel.category)
             }
         }

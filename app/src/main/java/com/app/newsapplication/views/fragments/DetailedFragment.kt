@@ -17,11 +17,11 @@ class DetailedFragment : Fragment(R.layout.fragment_detailed) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel =(activity as MainActivity).viewModel
+        viewModel = (activity as MainActivity).viewModel
 
-        val newsItem= args?.newsresponseitem
+        val newsItem = args?.newsresponseitem
         webView.apply {
-            webViewClient =  WebViewClient()
+            webViewClient = WebViewClient()
             newsItem?.typeAttributes?.url?.let { loadUrl(it) }
         }
     }

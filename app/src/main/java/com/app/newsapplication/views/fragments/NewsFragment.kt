@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AbsListView
-import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -21,7 +20,6 @@ import com.app.newsapplication.util.Utils
 import com.app.newsapplication.views.MainActivity
 import com.app.newsapplication.views.NewsViewModel
 import kotlinx.android.synthetic.main.fragment_news.*
-import kotlinx.coroutines.delay
 
 class NewsFragment : Fragment(R.layout.fragment_news) {
 
@@ -35,25 +33,38 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = (activity as MainActivity).viewModel
         initViews()
+        adapterOnClickListeners(view)
+        onlineNewsObserver()
+        offlineNewsObserver()
+    }
 
-        newsResponseAdapter.setOnItemClickListener { newsResponseItem ->
-            val bundle = Bundle().apply {
-                putSerializable("newsresponseitem", newsResponseItem)
-            }
-            Navigation.findNavController(view).navigate(
-                R.id.action_newsFragment_to_detailedFragment3,
-                bundle
-            )
-        }
+    private fun offlineNewsObserver() {
+        viewModel.getAllSavedNews()
+            .observe(viewLifecycleOwner, Observer { offlineNewsResponseItemList ->
+                if (!Utils().hasInternetConnection(context)) {
+                    showProgressBar()
+                    Log.e(TAG, "Offline Response Size: " + offlineNewsResponseItemList.size)
+                    newsResponseAdapter.differ.submitList(offlineNewsResponseItemList)
 
-        newsResponseTypeAdapter.setOnItemClickListener { item ->
-            isFilter = true
-            val list = viewModel.newsResponse?.toList()?.filter { newsResponseItem ->
-                newsResponseItem.type.equals(item?.type)
-            }
-            newsResponseAdapter.differ.submitList(list)
-            (activity as MainActivity).title = item?.type?.uppercase()
-        }
+                    //For Types Filter
+                    viewModel.newsTypeList?.forEach { newsResponseItem ->
+                        Log.i(TAG, "Type : " + newsResponseItem.type)
+                        newsResponseTypeAdapter.differ.submitList(viewModel.newsTypeList)
+                    }
+
+                    val totalPages =
+                        TOTAL_RESULTS / PAGE_SIZE + 2 //Add 2 because the division returns Integer and secondly the last page empty
+                    isLastPage = viewModel.newsPage == totalPages
+                    if (isLastPage) {
+                        rvNews.setPadding(0, 0, 0, 0)
+                    }
+                    btnAllNews.visibility = View.INVISIBLE
+                    hideProgressBar()
+                }
+            })
+    }
+
+    private fun onlineNewsObserver() {
 
         viewModel.news.observe(viewLifecycleOwner, Observer { response ->
             when (response) {
@@ -61,7 +72,7 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
                     hideProgressBar()
                     response.data?.let { newsResponse ->
 
-                        Log.e(TAG, "Response: ${response.data}")
+//                        Log.e(TAG, "Response: ${response.data}")
                         newsResponseAdapter.differ.submitList(newsResponse.toList())
 
                         //For Types Filter
@@ -95,7 +106,27 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
             }
 
         })
+    }
 
+    private fun adapterOnClickListeners(view: View) {
+        newsResponseAdapter.setOnItemClickListener { newsResponseItem ->
+            val bundle = Bundle().apply {
+                putSerializable("newsresponseitem", newsResponseItem)
+            }
+            Navigation.findNavController(view).navigate(
+                R.id.action_newsFragment_to_detailedFragment3,
+                bundle
+            )
+        }
+
+        newsResponseTypeAdapter.setOnItemClickListener { item ->
+            isFilter = true
+            val list = viewModel.newsResponse?.toList()?.filter { newsResponseItem ->
+                newsResponseItem.type.equals(item?.type)
+            }
+            newsResponseAdapter.differ.submitList(list)
+            (activity as MainActivity).title = item?.type?.uppercase()
+        }
     }
 
     var isLoading = false

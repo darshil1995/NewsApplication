@@ -6,22 +6,25 @@ import com.app.newsapplication.model.TypeAttributes
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
+//Class for Converting objects using Gson for storing Database.
 class Converters {
 
     @TypeConverter
-    fun imagesToUrl(images: Images): String {
-        return images.square_140
+    fun toImage(url: String): Images {
+        val type = object : TypeToken<Images>() {}.type
+        return Gson().fromJson(url, type)
     }
 
     @TypeConverter
-    fun urlToImages(url: String): Images {
-        return Images(url)
+    fun toString(images: Images): String {
+        val type = object : TypeToken<Images>() {}.type
+        return Gson().toJson(images, type)
     }
 
     @TypeConverter
-    fun toTypeAttributes(userInfo: String): TypeAttributes {
+    fun toTypeAttributes(str: String): TypeAttributes {
         val type = object : TypeToken<TypeAttributes>() {}.type
-        return Gson().fromJson(userInfo, type)
+        return Gson().fromJson(str, type)
     }
 
     @TypeConverter

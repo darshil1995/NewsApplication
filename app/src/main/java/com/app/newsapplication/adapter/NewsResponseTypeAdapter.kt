@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.app.newsapplication.R
 import com.app.newsapplication.model.NewsResponseItem
-import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.item_type_response.view.*
 
 class NewsResponseTypeAdapter :
@@ -50,8 +49,8 @@ class NewsResponseTypeAdapter :
 
         holder.itemView.apply {
             btnItemType.text = newsResponseItem.type
-            if(newsResponseItem.type==""){
-                btnItemType.text="News"
+            if (newsResponseItem.type == "") {
+                btnItemType.text = "News"
             }
             btnItemType.setOnClickListener {
                 onItemClickListener?.let { it(newsResponseItem) }

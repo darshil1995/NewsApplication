@@ -1,8 +1,8 @@
 package com.app.newsapplication.views
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.app.newsapplication.NewsApplication
@@ -24,7 +24,6 @@ class NewsViewModel(
     var newsTypeList: List<NewsResponseItem>? = null
     var newsPage = 1
     var newsResponse: NewsResponse? = null
-    var count : Int ?=1
     var category: String? = "news"
 
     init {
@@ -53,8 +52,49 @@ class NewsViewModel(
                     oldNews.addAll(newNews)
                 }
                 filterBy(newsResponse ?: resultResponse)
+                var i = 0L
+                (newsResponse ?: resultResponse).forEach {
 
+                    val id = it.id
+                    val active = it.active
+                    val description = it.description
+                    val embedTypes = it.embedTypes
+                    val images = it.images
+                    val language = it.language
+                    val publishedAt = it.publishedAt
+                    val readablePublishedAt = it.readablePublishedAt
+                    val readableUpdatedAt = it.readableUpdatedAt
+                    val source = it.source
+                    val sourceId = it.sourceId
+                    val title = it.title
+                    val type = it.type
+                    val typeAttributes = it.typeAttributes
+                    val updatedAt = it.updatedAt
+                    val version = it.version
 
+                    val newsResponseItem = NewsResponseItem(
+                        i,
+                        id,
+                        active,
+                        description,
+                        embedTypes,
+                        images,
+                        language,
+                        publishedAt,
+                        readablePublishedAt,
+                        readableUpdatedAt,
+                        source,
+                        sourceId,
+                        title,
+                        type,
+                        typeAttributes,
+                        updatedAt,
+                        version
+                    )
+
+                    saveNews(newsResponseItem)
+                    i += 1
+                }
                 return Resource.Success(newsResponse ?: resultResponse)
             }
         }
@@ -70,14 +110,16 @@ class NewsViewModel(
         return newsTypeList ?: outputList
     }
 
-
     //Save the News Item
     fun saveNews(newsResponseItem: NewsResponseItem) = viewModelScope.launch {
         newsRepository.upsert(newsResponseItem)
     }
 
     //Get all the news
-    fun getAllNews() = newsRepository.getAllSavedNews()
+    fun getAllSavedNews(): LiveData<List<NewsResponseItem>> {
+        val list = newsRepository.getAllSavedNews()
+        return list
+    }
 
     //Delete the news Item
     fun deleteNews(newsResponseItem: NewsResponseItem) = viewModelScope.launch {

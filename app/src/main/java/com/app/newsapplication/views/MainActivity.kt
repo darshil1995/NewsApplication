@@ -1,8 +1,10 @@
 package com.app.newsapplication.views
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.app.newsapplication.NewsApplication
 import com.app.newsapplication.R
 import com.app.newsapplication.db.NewsResponseItemDatabase
 import com.app.newsapplication.repository.NewsRepository
@@ -15,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        NewsApplication.context = application
 
         //Initializing the database and ViewModel
         val newsRepository = NewsRepository(NewsResponseItemDatabase(this))

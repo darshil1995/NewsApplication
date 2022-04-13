@@ -5,12 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.app.newsapplication.NewsApplication
 import com.app.newsapplication.model.NewsResponse
 import com.app.newsapplication.model.NewsResponseItem
 import com.app.newsapplication.repository.NewsRepository
 import com.app.newsapplication.util.Resource
-import com.app.newsapplication.util.Utils
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.IOException
@@ -52,49 +50,7 @@ class NewsViewModel(
                     oldNews.addAll(newNews)
                 }
                 filterBy(newsResponse ?: resultResponse)
-                var i = 0L
-                (newsResponse ?: resultResponse).forEach {
 
-                    val id = it.id
-                    val active = it.active
-                    val description = it.description
-                    val embedTypes = it.embedTypes
-                    val images = it.images
-                    val language = it.language
-                    val publishedAt = it.publishedAt
-                    val readablePublishedAt = it.readablePublishedAt
-                    val readableUpdatedAt = it.readableUpdatedAt
-                    val source = it.source
-                    val sourceId = it.sourceId
-                    val title = it.title
-                    val type = it.type
-                    val typeAttributes = it.typeAttributes
-                    val updatedAt = it.updatedAt
-                    val version = it.version
-
-                    val newsResponseItem = NewsResponseItem(
-                        i,
-                        id,
-                        active,
-                        description,
-                        embedTypes,
-                        images,
-                        language,
-                        publishedAt,
-                        readablePublishedAt,
-                        readableUpdatedAt,
-                        source,
-                        sourceId,
-                        title,
-                        type,
-                        typeAttributes,
-                        updatedAt,
-                        version
-                    )
-
-                    saveNews(newsResponseItem)
-                    i += 1
-                }
                 return Resource.Success(newsResponse ?: resultResponse)
             }
         }
@@ -129,16 +85,13 @@ class NewsViewModel(
     private suspend fun safeNewsCall(category: String?) {
         news.postValue(Resource.Loading())
         try {
-            if (Utils().hasInternetConnection(getApplication<NewsApplication>())) {
-                val response = newsRepository.getNews(category)
-                news.postValue(handleNewsResponse(response))
-            } else {
-                news.postValue(Resource.Error("No Internet Connection"))
-            }
+
+            val response = newsRepository.getNews(category)
+            news.postValue(handleNewsResponse(response))
         } catch (t: Throwable) {
             when (t) {
                 is IOException -> news.postValue(Resource.Error("Network Failure"))
-                else -> news.postValue(Resource.Error("Error Occured"))
+                else -> news.postValue(Resource.Error("Error Occurred"))
             }
         }
     }

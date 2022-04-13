@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.newsapplication.R
 import com.app.newsapplication.adapter.NewsResponseAdapter
 import com.app.newsapplication.adapter.NewsResponseTypeAdapter
+import com.app.newsapplication.util.Constants
 import com.app.newsapplication.util.Constants.Companion.PAGE_SIZE
 import com.app.newsapplication.util.Constants.Companion.TOTAL_RESULTS
 import com.app.newsapplication.util.Resource
-import com.app.newsapplication.util.Utils
 import com.app.newsapplication.views.MainActivity
 import com.app.newsapplication.views.NewsViewModel
 import kotlinx.android.synthetic.main.fragment_news.*
@@ -35,38 +35,14 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
         initViews()
         adapterOnClickListeners(view)
         onlineNewsObserver()
-        offlineNewsObserver()
-    }
-
-    private fun offlineNewsObserver() {
-        viewModel.getAllSavedNews()
-            .observe(viewLifecycleOwner, Observer { offlineNewsResponseItemList ->
-                if (!Utils().hasInternetConnection(context)) {
-                    showProgressBar()
-                    Log.e(TAG, "Offline Response Size: " + offlineNewsResponseItemList.size)
-                    newsResponseAdapter.differ.submitList(offlineNewsResponseItemList)
-
-                    //For Types Filter
-                    viewModel.newsTypeList?.forEach { newsResponseItem ->
-                        Log.i(TAG, "Type : " + newsResponseItem.type)
-                        newsResponseTypeAdapter.differ.submitList(viewModel.newsTypeList)
-                    }
-
-                    val totalPages =
-                        TOTAL_RESULTS / PAGE_SIZE + 2 //Add 2 because the division returns Integer and secondly the last page empty
-                    isLastPage = viewModel.newsPage == totalPages
-                    if (isLastPage) {
-                        rvNews.setPadding(0, 0, 0, 0)
-                    }
-                    btnAllNews.visibility = View.INVISIBLE
-                    hideProgressBar()
-                }
-            })
     }
 
     private fun onlineNewsObserver() {
 
         viewModel.news.observe(viewLifecycleOwner, Observer { response ->
+            if (!Constants.hasInternetConnection(context)) {
+                Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
+            }
             when (response) {
                 is Resource.Success -> {
                     hideProgressBar()
@@ -93,9 +69,6 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
                     hideProgressBar()
                     response.message?.let { message ->
                         Log.e(TAG, "Error:  $message")
-                        if (Utils().hasInternetConnection(context)) {
-                            btnAllNews.visibility = View.GONE
-                        }
                         Toast.makeText(activity, "An Error Occured: $message", Toast.LENGTH_SHORT)
                             .show()
                     }
